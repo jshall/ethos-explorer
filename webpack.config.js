@@ -9,6 +9,7 @@ module.exports = {
   mode: 'development',
   entry: {
     app: './src/index.js',
+    ethos: './src/ethos.js',
   },
   module: {
     rules: [
@@ -25,6 +26,16 @@ module.exports = {
           { loader: 'style-loader' },
           { loader: 'css-loader' },
         ]
+      },
+      {
+        test: /\.csv$/,
+        loader: 'csv-loader',
+        options: {
+          dynamicTyping: true,
+          header: true,
+          transformHeader: h => h.trim(),
+          skipEmptyLines: true
+        }
       }
     ]
   },
