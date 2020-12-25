@@ -38,11 +38,11 @@ const packages = {}
 
 function indexEntity(parent, entity, ...path) {
     const detail = {}
-    const packageName = path.reduce((p, n) => p + '.' + n.toLowerCase().replace(/ /g, '-'), '').substring(1)
+    entity.package = path.reduce((p, n) => p + '.' + n.toLowerCase().replace(/ /g, '-'), '').substring(1)
     parent[entity.name] = entity
-    resources[entity.resource] = { packageName, entity, detail }
-    expand(packages, packageName, {})[entity.resource] = detail
-    entity.detail = `getDetail:${packageName}:${entity.resource}`
+    resources[entity.resource] = { entity, detail }
+    expand(packages, entity.package, {})[entity.resource] = detail
+    entity.detail = `getDetail:${entity.package}:${entity.resource}`
 }
 function indexDomain(parent, domain, ...path) {
     const obj = {}
@@ -121,10 +121,19 @@ fs.readdirSync(defs).forEach(resName => {
     })
 })
 
+console.log('Creating files...')
+
+fs.ensureDirSync(rel('../ethos'))
+fs.readdirSync(rel('.')).forEach(def => {
+    fs.copyFileSync(rel('./' + def), rel('../ethos/' + def))
+})
+
 const indexTemplate = fs.readFileSync(rel('./index.ejs'), 'utf8')
-createEntry('./ethos/index.js', indexTemplate, { structure: structure })
+createEntry('./ethos/index.js', indexTemplate, { structure })
 
 const packageTemplate = fs.readFileSync(rel('./package.ejs'), 'utf8')
 forEachPair(packages, (package, content) => {
     createEntry(`./ethos/${package}.js`, packageTemplate, { content })
 })
+
+console.log('Completed generation of Ethos data files.\n')

@@ -1,1 +1,16 @@
-module.exports = <%-JSON.stringify(structure).replace(/"getDetail:(.*?):(.*?)"/g, "async () => (await import(/* webpackChunkName: 'ethos.$1' */ './$1.js')).default['$2']") %>;
+/// <reference path="index.d.ts" />
+var structure = <%- JSON.stringify(structure).replace(/"getDetail:(.*?):(.*?)"/g, "async () => (await import(/* webpackChunkName: 'ethos.$1' */ './$1.js')).default['$2']") %>
+var resources = {}
+
+function crawl(domain) {
+    for (const entry of Object.values(domain)) {
+        if (entry.resource) {
+            resources[entry.resource] = entry
+        } else {
+            crawl(entry)
+        }
+    }
+}
+crawl(structure)
+
+module.exports = { structure, resources }

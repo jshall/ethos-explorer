@@ -11,8 +11,8 @@ export class AppComponent {
 
   ngOnInit(): void {
     Ethos.then(ethos => {
-      window.ethos = ethos.default
-      console.log('Ethos data', window.ethos)
+      (window as any).ethos = ethos
+      console.log('Ethos data', ethos)
     })
   }
 }
