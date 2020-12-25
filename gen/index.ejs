@@ -1,0 +1,1 @@
+module.exports = <%-JSON.stringify(structure).replace(/"getDetail:(.*?):(.*?)"/g, "async () => (await import(/* webpackChunkName: 'ethos.$1' */ './$1.js')).default['$2']") %>;

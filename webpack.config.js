@@ -2,6 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 const CleanWebpackPlugin = require('clean-webpack-plugin');
 const CopyWebpackPlugin = require('copy-webpack-plugin');
+const ethos = require('./gen');
 
 const outputPath = path.resolve(__dirname, 'dist');
 
@@ -9,7 +10,6 @@ module.exports = {
   mode: 'development',
   entry: {
     app: './src/index.js',
-    ethos: './src/ethos.js',
   },
   module: {
     rules: [
@@ -27,16 +27,6 @@ module.exports = {
           { loader: 'css-loader' },
         ]
       },
-      {
-        test: /\.csv$/,
-        loader: 'csv-loader',
-        options: {
-          dynamicTyping: true,
-          header: true,
-          transformHeader: h => h.trim(),
-          skipEmptyLines: true
-        }
-      }
     ]
   },
   plugins: [
@@ -56,7 +46,7 @@ module.exports = {
     })
   ],
   output: {
-    filename: '[name].bundle.js',
+    filename: '[name].js',
     path: outputPath,
   }
 };
