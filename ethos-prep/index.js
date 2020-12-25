@@ -16,8 +16,8 @@ function extract(filename) {
     zip.extractAllTo('.')
 }
 
-const zip = 'ellucian_ethos_sdk.zip'
-if (fs.existsSync('ellucian_ethos_sdk')) {
+const zip = rel('../ellucian_ethos_sdk.zip')
+if (fs.existsSync(rel('../ellucian_ethos_sdk'))) {
     console.log(`${zip} has already been unpacked.`)
 } else {
     extract(zip)
@@ -63,7 +63,7 @@ function expand(obj, prop, fallback) {
 }
 
 console.log('Parsing lineage...')
-let lineage = fs.readFileSync('./ellucian_ethos_sdk/data_dictionary/all-lineage.csv', 'utf8')
+let lineage = fs.readFileSync(rel('../ellucian_ethos_sdk/data_dictionary/all-lineage.csv'), 'utf8')
 lineage = papa.parse(lineage, { header: true, transformHeader: h => h.trim(), skipEmptyLines: true }).data
 lineage.forEach(item => {
     if (item.sourceFieldNotes !== 'Not Supported') {
@@ -103,7 +103,7 @@ function forEachPair(obj, func) {
 }
 
 console.log('Parsing definitions...')
-const defs = 'ellucian_ethos_sdk/ethos_data_models_and_apis/src'
+const defs = rel('../ellucian_ethos_sdk/ethos_data_models_and_apis/src')
 const sources = lineage.map(i => i.src).filter((v, i, s) => s.indexOf(v) === i)
 fs.readdirSync(defs).forEach(resName => {
     const res = resources[resName]
@@ -111,7 +111,7 @@ fs.readdirSync(defs).forEach(resName => {
         const version = expand(expand(res, 'detail', {}), ver, {})
         const files = fs.readdirSync(path.join(defs, resName, ver))
         let file = resName + '.json'
-        version.schema = require('../' + path.join(defs, resName, ver, file))
+        version.schema = require(path.join(defs, resName, ver, file))
         sources.forEach(src => {
             if (files.includes(file = src.toLowerCase() + '-' + resName + '.yaml')) {
                 let source = expand(expand(version, 'sources', {}), src, {})
@@ -121,10 +121,10 @@ fs.readdirSync(defs).forEach(resName => {
     })
 })
 
-const indexTemplate = fs.readFileSync('./gen/index.ejs', 'utf8')
+const indexTemplate = fs.readFileSync(rel('./index.ejs'), 'utf8')
 createEntry('./ethos/index.js', indexTemplate, { structure: structure })
 
-const packageTemplate = fs.readFileSync('./gen/package.ejs', 'utf8')
+const packageTemplate = fs.readFileSync(rel('./package.ejs'), 'utf8')
 forEachPair(packages, (package, content) => {
     createEntry(`./ethos/${package}.js`, packageTemplate, { content })
 })
