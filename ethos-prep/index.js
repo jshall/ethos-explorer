@@ -37,12 +37,13 @@ const resources = {}
 const packages = {}
 
 function indexEntity(parent, entity, ...path) {
-    const detail = {}
+    const versions = {}
+    entity.path = path
     entity.package = path.reduce((p, n) => p + '.' + n.toLowerCase().replace(/ /g, '-'), '').substring(1)
     parent[entity.name] = entity
-    resources[entity.resource] = { entity, detail }
-    expand(packages, entity.package, {})[entity.resource] = detail
-    entity.detail = `getDetail:${entity.package}:${entity.resource}`
+    resources[entity.resource] = { entity, versions }
+    expand(packages, entity.package, {})[entity.resource] = versions
+    entity.getVersions = `getVersions:${entity.package}:${entity.resource}`
 }
 function indexDomain(parent, domain, ...path) {
     const obj = {}
@@ -68,7 +69,7 @@ lineage = papa.parse(lineage, { header: true, transformHeader: h => h.trim(), sk
 lineage.forEach(item => {
     if (item.sourceFieldNotes !== 'Not Supported') {
         let prop = resources[item.model]
-        prop = expand(prop, 'detail', {})
+        prop = expand(prop, 'versions', {})
         prop = expand(prop, item.modver.toString(), {})
         prop = expand(prop, 'sources', {})
         prop = expand(prop, item.src, {})
@@ -108,7 +109,7 @@ const sources = lineage.map(i => i.src).filter((v, i, s) => s.indexOf(v) === i)
 fs.readdirSync(defs).forEach(resName => {
     const res = resources[resName]
     fs.readdirSync(path.join(defs, resName)).forEach(ver => {
-        const version = expand(expand(res, 'detail', {}), ver, {})
+        const version = expand(expand(res, 'versions', {}), ver, {})
         const files = fs.readdirSync(path.join(defs, resName, ver))
         let file = resName + '.json'
         version.schema = require(path.join(defs, resName, ver, file))
@@ -123,9 +124,10 @@ fs.readdirSync(defs).forEach(resName => {
 
 console.log('Creating files...')
 
-fs.ensureDirSync(rel('../ethos'))
-fs.readdirSync(rel('.')).forEach(def => {
-    fs.copyFileSync(rel('./' + def), rel('../ethos/' + def))
+fs.rmdirSync('ethos', { recursive: true })
+fs.ensureDirSync('ethos')
+fs.readdirSync(rel('.')).filter(n => n.match('.d.ts')).forEach(def => {
+    fs.linkSync(rel('./' + def), 'ethos/' + def)
 })
 
 const indexTemplate = fs.readFileSync(rel('./index.ejs'), 'utf8')

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { Ethos } from './ethos';
+import { EthosData } from './models/EthosData';
 
 @Component({
   selector: 'app-root',
@@ -9,10 +9,8 @@ import { Ethos } from './ethos';
 export class AppComponent {
   title = 'ethos-explorer';
 
-  ngOnInit(): void {
-    Ethos.then(ethos => {
-      (window as any).ethos = ethos
-      console.log('Ethos data', ethos)
-    })
+  async ngOnInit(): Promise<void> {
+    const ethos = globalThis.ethos = await EthosData
+    console.log('Ethos data', ethos)
   }
 }

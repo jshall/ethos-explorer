@@ -2,12 +2,18 @@ export interface IDomain {
     [name: string]: IDomain | IResource
 }
 
+export interface IResourceList {
+    [name: string]: IResource
+}
+
 export interface IResource {
     resource: string
     name: string
     representationType: string
+    path: string[]
     package: string
-    detail: Promise<IVersionList>
+    getVersions: () => Promise<IVersionList>
+    versions?: IVersionList
 }
 
 export interface IPackage {
@@ -41,5 +47,5 @@ export interface IProperty {
     UI?: string
 }
 
-export const structure: IDomain;
-export const resources: { [name: string]: IResource };
+export const structure: IDomain
+export const resources: IResourceList
