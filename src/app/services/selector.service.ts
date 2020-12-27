@@ -1,43 +1,44 @@
 import { Injectable } from '@angular/core';
-import { ISource } from 'ethos';
+import { ISource, IVersion } from 'ethos';
 import { Subject } from 'rxjs';
-import { Version } from '../models/Version';
 import SwaggerUI from 'swagger-ui';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SelectorService {
-  private versionSource = new Subject<Version>()
-  private sourceSource = new Subject<string>()
+  private versionSource = new Subject<IVersion>()
+  private sourceNameSource = new Subject<string>()
+  private sourceSource = new Subject<ISource>()
 
-  version?: Version
+  version?: IVersion
   versionFeed = this.versionSource.asObservable()
 
-  source = 'Colleague'
+  sourceName = 'Colleague'
+  sourceNameFeed = this.sourceNameSource.asObservable()
+
+  source?: ISource
   sourceFeed = this.sourceSource.asObservable()
 
-  constructor() {
-    this.versionFeed.forEach(item => this.version = item)
-    this.sourceFeed.forEach(item => this.source = item)
-  }
+  constructor() { }
 
-  setVersion(version: Version) {
-    this.versionSource.next(version)
+  setVersion(version: IVersion) {
+    this.versionSource.next(this.version = version)
     this.loadSwagger()
   }
 
-  setSource(source: string) {
-    this.sourceSource.next(source)
+  setSourceName(name: string) {
+    this.sourceNameSource.next(this.sourceName = name)
     this.loadSwagger()
   }
 
   private loadSwagger() {
-    let src: ISource
-    if (this.version && this.source && (src = this.version.sources[this.source]) && src.api)
+    if (!this.version || !this.sourceName || !(this.source = this.version.sources[this.sourceName]) || !this.source.api)
+      document.getElementById('content')!.innerHTML = ''
+    else
       SwaggerUI({
         dom_id: '#content',
-        spec: src.api
+        spec: this.source.api
       })
   }
 }

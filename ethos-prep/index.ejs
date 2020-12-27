@@ -13,7 +13,7 @@ function crawl(list, parent) {
             entry.getVersions = async () => entry.versions = await load()
             entry.contains = version =>
                 entry.versions
-                    ? Object.values(entry.versions).some(v => v.schema === version.schema)
+                    ? Object.values(entry.versions).some(v => v === version)
                     : false
         } else {
             if (entry.subdomains)

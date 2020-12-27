@@ -36,7 +36,7 @@ const resources = {}
 const packages = {}
 
 function indexEntity(entity, ...path) {
-    const versions = {}
+    const versions = []
     const package = path.reduce((p, n) => p + '.' + n.toLowerCase().replace(/ /g, '-'), '').substring(1)
     resources[entity.resource] = { entity, versions }
     expand(packages, package, {})[entity.resource] = versions
@@ -57,9 +57,22 @@ domains.forEach(domain => indexDomain(domain))
 function expand(obj, prop, fallback) {
     if (typeof obj !== 'object')
         throw '\'obj\' is not and object'
-    return obj.hasOwnProperty(prop)
-        ? obj[prop]
-        : (obj[prop] = fallback)
+    let prop2, key
+    if (prop instanceof Array)
+        [prop, prop2, key] = prop
+    if (!key)
+        return obj.hasOwnProperty(prop)
+            ? obj[prop]
+            : (obj[prop] = fallback)
+    if (!obj.hasOwnProperty(prop))
+        obj[prop] = []
+    let item = obj[prop].find(i => i[prop2] === key)
+    if (!item) {
+        item = {}
+        item[prop2] = key
+        obj[prop].push(item)
+    }
+    return item
 }
 
 console.log('Parsing lineage...')
@@ -68,8 +81,7 @@ lineage = papa.parse(lineage, { header: true, transformHeader: h => h.trim(), sk
 lineage.forEach(item => {
     if (item.sourceFieldNotes !== 'Not Supported') {
         let prop = resources[item.model]
-        prop = expand(prop, 'versions', {})
-        prop = expand(prop, item.modver.toString(), {})
+        prop = expand(prop, ['versions', 'name', item.modver.toString()])
         prop = expand(prop, 'sources', {})
         prop = expand(prop, item.src, {})
         prop = expand(prop, 'properties', {})
@@ -108,7 +120,7 @@ const sources = lineage.map(i => i.src).filter((v, i, s) => s.indexOf(v) === i)
 fs.readdirSync(defs).forEach(resName => {
     const res = resources[resName]
     fs.readdirSync(path.join(defs, resName)).forEach(ver => {
-        const version = expand(expand(res, 'versions', {}), ver, {})
+        const version = expand(res, ['versions', 'name', ver])
         const files = fs.readdirSync(path.join(defs, resName, ver))
         let file = resName + '.json'
         version.schema = require(path.join(defs, resName, ver, file))

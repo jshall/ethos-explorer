@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { EthosData } from 'ethos';
-import { Version } from 'src/app/models/Version';
+import { EthosData, ISource, IVersion } from 'ethos';
 import { SelectorService } from 'src/app/services/selector.service';
 
 @Component({
@@ -11,8 +10,9 @@ import { SelectorService } from 'src/app/services/selector.service';
 export class SelectorComponent implements OnInit {
   sources: string[]
 
-  version?: Version
-  source: string
+  version?: IVersion
+  sourceName: string
+  source?: ISource
 
   constructor(
     private selector: SelectorService
@@ -20,6 +20,11 @@ export class SelectorComponent implements OnInit {
     this.version = this.selector.version
     this.selector.versionFeed.forEach(item => {
       this.version = item
+    })
+
+    this.sourceName = this.selector.sourceName
+    this.selector.sourceNameFeed.forEach(item => {
+      this.sourceName = item
     })
 
     this.source = this.selector.source
@@ -32,7 +37,12 @@ export class SelectorComponent implements OnInit {
     this.sources = EthosData.sources
   }
 
-  setSource(source: string) {
-    this.selector.setSource(source)
+  hasSource(name: string) {
+    return !this.version || !this.version.sources ||
+      !this.version.sources[name]
+  }
+
+  setSourceName(name: string) {
+    this.selector.setSourceName(name)
   }
 }
