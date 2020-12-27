@@ -1,0 +1,4 @@
+<button (click)="toggle()">{{resource.name}}</button>
+<div class="items">
+    <app-version *ngFor="let version of versions" [version]="version"></app-version>
+</div>

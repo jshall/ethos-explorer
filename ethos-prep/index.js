@@ -24,8 +24,7 @@ if (fs.existsSync(rel('../ellucian_ethos_sdk'))) {
 }
 
 console.log('Parsing domains...')
-const domainEntities = require('../ellucian_ethos_sdk/data_dictionary/structure/domainEntities.json')
-var structure = {}
+const domains = require('../ellucian_ethos_sdk/data_dictionary/structure/domainEntities.json')
 
 function createEntry(filename, template, data) {
     let entry = ejs.render(template, data)
@@ -36,23 +35,23 @@ function createEntry(filename, template, data) {
 const resources = {}
 const packages = {}
 
-function indexEntity(parent, entity, ...path) {
+function indexEntity(entity, ...path) {
     const versions = {}
-    entity.path = path
-    entity.package = path.reduce((p, n) => p + '.' + n.toLowerCase().replace(/ /g, '-'), '').substring(1)
-    parent[entity.name] = entity
+    const package = path.reduce((p, n) => p + '.' + n.toLowerCase().replace(/ /g, '-'), '').substring(1)
     resources[entity.resource] = { entity, versions }
-    expand(packages, entity.package, {})[entity.resource] = versions
-    entity.getVersions = `getVersions:${entity.package}:${entity.resource}`
+    expand(packages, package, {})[entity.resource] = versions
+    entity.getVersions = `getVersions:${package}:${entity.resource}`
 }
-function indexDomain(parent, domain, ...path) {
-    const obj = {}
-    parent[domain.name] = obj
+function indexDomain(domain, ...path) {
     path = [...path, domain.name]
-    domain.entities?.forEach(entity => indexEntity(obj, entity, ...path))
-    domain.subdomains?.forEach(domain => indexDomain(obj, domain, ...path))
+    domain.entities?.forEach(entity => indexEntity(entity, ...path))
+    domain.subdomains?.forEach(domain => indexDomain(domain, ...path))
+    if (domain.entities) {
+        domain.resources = domain.entities
+        delete domain.entities
+    }
 }
-domainEntities.forEach(domain => indexDomain(structure, domain))
+domains.forEach(domain => indexDomain(domain))
 
 
 function expand(obj, prop, fallback) {
@@ -131,7 +130,7 @@ fs.readdirSync(rel('.')).filter(n => n.match('.d.ts')).forEach(def => {
 })
 
 const indexTemplate = fs.readFileSync(rel('./index.ejs'), 'utf8')
-createEntry('./ethos/index.js', indexTemplate, { structure })
+createEntry('./ethos/index.js', indexTemplate, { sources, domains })
 
 const packageTemplate = fs.readFileSync(rel('./package.ejs'), 'utf8')
 forEachPair(packages, (package, content) => {

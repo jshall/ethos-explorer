@@ -1,9 +1,10 @@
-import { IDomain, IResourceList } from 'ethos';
+import { IDomain, IResourceList as IResourceDictionary } from 'ethos';
 import { Import } from './Import';
 
 export interface IEthosData {
-    structure: IDomain
-    resources: IResourceList
+    sources: string[]
+    domains: IDomain[]
+    resources: IResourceDictionary
 }
 
 export const EthosData: Promise<IEthosData>

@@ -1,18 +1,24 @@
 /// <reference path="index.d.ts" />
-var structure = <%- JSON.stringify(structure).replace(/"getVersions:(.*?):(.*?)"/g, "async () => (await import(/* webpackChunkName: 'ethos.$1' */ './$1.js'))['$2']") %>
-var resources = {}
+const sources = <%- JSON.stringify(sources) %>;
+const domains = <%- JSON.stringify(domains).replace(/"getVersions:(.*?):(.*?)"/g, "async () => (await import(/* webpackChunkName: 'ethos.$1' */ './$1.js'))['$2']") %>;
+const resources = {}
 
-function crawl(domain) {
-    for (const entry of Object.values(domain)) {
+function crawl(list, parent) {
+    for (const entry of list) {
+        if (parent)
+            entry.parent = parent
         if (entry.resource) {
             resources[entry.resource] = entry
             const load = entry.getVersions
             entry.getVersions = async () => entry.versions = await load()
         } else {
-            crawl(entry)
+            if (entry.subdomains)
+                crawl(entry.subdomains, entry)
+            if (entry.resources)
+                crawl(entry.resources, entry)
         }
     }
 }
-crawl(structure)
+crawl(domains)
 
-module.exports = { structure, resources }
+module.exports = { sources, domains, resources }

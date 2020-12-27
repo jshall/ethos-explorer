@@ -1,0 +1,5 @@
+<button (click)="toggle()">{{domain.name}}</button>
+<div class="items">
+    <app-domain *ngFor="let domain of domain.subdomains" [domain]="domain"></app-domain>
+    <app-resource *ngFor="let resource of domain.resources" [resource]="resource"></app-resource>
+</div>

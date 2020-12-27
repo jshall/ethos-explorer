@@ -1,5 +1,7 @@
 export interface IDomain {
-    [name: string]: IDomain | IResource
+    name: string
+    subdomains?: IDomain[]
+    resources?: IResource[]
 }
 
 export interface IResourceList {
@@ -25,8 +27,8 @@ export interface IVersionList {
 }
 
 export interface IVersion {
-    schema?: any
-    sources?: { [name: string]: ISource }
+    schema: any
+    sources: { [name: string]: ISource }
 }
 
 export interface ISource {
@@ -47,5 +49,6 @@ export interface IProperty {
     UI?: string
 }
 
-export const structure: IDomain
+export const sources: string[]
+export const domains: IDomain[]
 export const resources: IResourceList

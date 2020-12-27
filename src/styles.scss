@@ -1,1 +1,67 @@
-/* You can add global styles to this file, and also import other style files */
+@import 'swagger-ui/dist/swagger-ui.css';
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+app-root {
+  display: grid;
+  grid-template-columns: 20%;
+  grid-template-rows: 2em;
+  grid-template-areas:
+    "nav selector"
+    "nav content";
+  width: 100vw;
+  height: 100vh;
+
+  app-nav {
+    grid-area: nav;
+    overflow-y: auto;
+
+    button {
+      width: 100%;
+      text-align: left;
+    }
+
+    .collapsed>.items {
+      display: none;
+    }
+
+    app-domain {
+      >button {
+        background-color: steelblue;
+        color: whitesmoke;
+      }
+
+      >.items {
+        margin-inline-start: 1em;
+      }
+    }
+
+    app-version {
+      >button {
+        border: none;
+        background-color: aliceblue;
+      }
+    }
+  }
+
+  app-selector {
+    display: flex;
+    grid-area: selector;
+
+    >button {
+      flex-grow: 1;
+
+      &.active {
+        background-color: aqua;
+      }
+    }
+  }
+
+  #content {
+    grid-area: content;
+    overflow-y: auto;
+  }
+}

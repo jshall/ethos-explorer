@@ -1,11 +1,21 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
-import { AppComponent } from './app.component';
+import { AppComponent } from './components/app.component';
+import { NavComponent } from './components/nav/nav.component';
+import { DomainComponent } from './components/nav/domain/domain.component';
+import { ResourceComponent } from './components/nav/resource/resource.component';
+import { VersionComponent } from './components/nav/version/version.component';
+import { SelectorComponent } from './components/selector/selector.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    NavComponent,
+    DomainComponent,
+    ResourceComponent,
+    VersionComponent,
+    SelectorComponent
   ],
   imports: [
     BrowserModule
