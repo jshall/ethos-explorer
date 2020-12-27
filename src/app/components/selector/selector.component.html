@@ -1,7 +1,7 @@
 <button
   *ngFor="let src of sources"
   (click)="setSource(src)"
-  [disabled]="version && !version.sources[src]"
+  [disabled]="!version || !version.sources || !version.sources[src]"
   [class.active]="src === source"
 >
   {{ src }}

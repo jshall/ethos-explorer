@@ -1,5 +1,6 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core';
 import { IDomain, IResource } from 'ethos';
+import { SelectorService } from 'src/app/services/selector.service';
 
 @Component({
   selector: 'app-domain',
@@ -8,6 +9,13 @@ import { IDomain, IResource } from 'ethos';
 export class DomainComponent implements OnInit {
   @Input() domain: IDomain
   @HostBinding('class.collapsed') collapsed = true;
+
+  constructor(private selector: SelectorService) {
+    this.selector.versionFeed.forEach(version => {
+      let found = this.domain.contains(version)
+      this.collapsed = !found
+    })
+  }
 
   ngOnInit() { }
 

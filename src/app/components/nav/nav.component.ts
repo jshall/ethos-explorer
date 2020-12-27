@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { IDomain } from 'ethos';
-import { EthosData } from '../../models/EthosData';
+
+import { EthosData, IDomain } from 'ethos';
 
 @Component({
   selector: 'app-nav',
@@ -11,8 +11,8 @@ export class NavComponent implements OnInit {
 
   constructor() { }
 
-  async ngOnInit(): Promise<void> {
-    this.domains = (await EthosData).domains
+  ngOnInit(): void {
+    this.domains = EthosData.domains
   }
 
 }

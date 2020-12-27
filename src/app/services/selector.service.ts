@@ -26,14 +26,14 @@ export class SelectorService {
     this.versionSource.next(version)
     this.loadSwagger()
   }
-  
+
   setSource(source: string) {
     this.sourceSource.next(source)
     this.loadSwagger()
   }
 
   private loadSwagger() {
-    let src:ISource
+    let src: ISource
     if (this.version && this.source && (src = this.version.sources[this.source]) && src.api)
       SwaggerUI({
         dom_id: '#content',

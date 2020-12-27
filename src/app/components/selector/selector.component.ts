@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { ISource } from 'ethos';
-import { EthosData } from 'src/app/models/EthosData';
+
+import { EthosData } from 'ethos';
 import { Version } from 'src/app/models/Version';
 import { SelectorService } from 'src/app/services/selector.service';
 
@@ -28,9 +28,8 @@ export class SelectorComponent implements OnInit {
     })
   }
 
-  async ngOnInit(): Promise<void> {
-    let ethos = await EthosData
-    this.sources = ethos.sources
+  ngOnInit(): void {
+    this.sources = EthosData.sources
   }
 
   setSource(source: string) {

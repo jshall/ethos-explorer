@@ -1,10 +1,20 @@
+export const EthosData: IEthosData
+
+export interface IEthosData {
+    sources: string[]
+    domains: IDomain[]
+    resources: IResourceDictionary
+}
+
 export interface IDomain {
     name: string
     subdomains?: IDomain[]
     resources?: IResource[]
+
+    contains(item: IResource | IVersion): boolean
 }
 
-export interface IResourceList {
+export interface IResourceDictionary {
     [name: string]: IResource
 }
 
@@ -14,8 +24,10 @@ export interface IResource {
     representationType: string
     path: string[]
     package: string
-    getVersions: () => Promise<IVersionList>
     versions?: IVersionList
+
+    getVersions(): Promise<IVersionList>
+    contains(version: IVersion): boolean
 }
 
 export interface IPackage {
@@ -48,7 +60,3 @@ export interface IProperty {
     }
     UI?: string
 }
-
-export const sources: string[]
-export const domains: IDomain[]
-export const resources: IResourceList

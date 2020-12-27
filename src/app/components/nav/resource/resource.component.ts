@@ -1,6 +1,7 @@
-import { Component, HostBinding, HostListener, Input, OnInit } from '@angular/core'
-import { IResource, IVersion } from 'ethos'
-import { Version } from 'src/app/models/Version';
+import { Component, HostBinding, Input, OnInit } from '@angular/core'
+import { IResource } from 'ethos'
+import { sortVersions, Version } from 'src/app/models/Version';
+import { SelectorService } from 'src/app/services/selector.service';
 
 @Component({
   selector: 'app-resource',
@@ -12,7 +13,12 @@ export class ResourceComponent implements OnInit {
 
   versions: Version[]
 
-  constructor() { }
+  constructor(private selector: SelectorService) {
+    this.selector.versionFeed.forEach(version => {
+      let found = this.resource.contains(version)
+      this.collapsed = !found
+    })
+  }
 
   async ngOnInit(): Promise<void> {
     await this.resource.getVersions()
@@ -26,12 +32,4 @@ export class ResourceComponent implements OnInit {
     this.collapsed = !this.collapsed
   }
 
-}
-
-function sortVersions(a: Version, b: Version): number {
-  let [a1, a2, a3] = a.name.split('.').map(n => parseInt(n, 10))
-  let [b1, b2, b3] = b.name.split('.').map(n => parseInt(n, 10))
-  if (a1 - b1) return a1 - b1
-  if (a2 - b2) return a2 - b2
-  return a3 - b3
 }

@@ -11,14 +11,30 @@ function crawl(list, parent) {
             resources[entry.resource] = entry
             const load = entry.getVersions
             entry.getVersions = async () => entry.versions = await load()
+            entry.contains = version =>
+                entry.versions
+                    ? Object.values(entry.versions).some(v => v.schema === version.schema)
+                    : false
         } else {
             if (entry.subdomains)
                 crawl(entry.subdomains, entry)
             if (entry.resources)
                 crawl(entry.resources, entry)
+            entry.contains = item => {
+                if (entry.subdomains)
+                    if (entry.subdomains.some(d => d.contains(item)))
+                        return true
+                if (entry.resources)
+                    if (item.resource)
+                        return entry.resources.includes(item)
+                    else
+                        return entry.resources.some(r => r.contains(item))
+                return false
+            }
         }
     }
 }
+// @ts-ignore
 crawl(domains)
 
-module.exports = { sources, domains, resources }
+exports.EthosData = { sources, domains, resources }
