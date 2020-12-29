@@ -3,8 +3,9 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "prestart": "node unpack",
-    "start": "ng serve",
+    "start": "nodemon -w unpack -e 'js ts ejs' --exec npm run serve",
+    "preserve": "node unpack",
+    "serve": "ng serve",
     "prebuild": "node unpack",
     "build": "ng build",
     "pretest": "node unpack",
