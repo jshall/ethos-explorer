@@ -31,6 +31,7 @@ export interface IPackage {
 }
 
 export interface IVersion {
+    resource: IResource
     name: string
     schema: any
     sources: { [name: string]: ISource }

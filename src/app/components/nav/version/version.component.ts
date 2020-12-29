@@ -7,7 +7,7 @@ import { SelectorService } from 'src/app/services/selector.service';
   templateUrl: './version.component.html',
 })
 export class VersionComponent implements OnInit {
-  @Input() version: IVersion
+  @Input() version!: IVersion
 
   constructor(
     private selector: SelectorService

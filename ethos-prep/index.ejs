@@ -3,6 +3,14 @@ const sources = <%- JSON.stringify(sources) %>;
 const domains = <%- JSON.stringify(domains).replace(/"getVersions:(.*?):(.*?)"/g, "async () => (await import(/* webpackChunkName: 'ethos.$1' */ './$1.js'))['$2']") %>;
 const resources = {}
 
+function sortVersions(a, b) {
+    let [a1, a2, a3] = a.name.split('.').map(n => parseInt(n, 10))
+    let [b1, b2, b3] = b.name.split('.').map(n => parseInt(n, 10))
+    if (a1 - b1) return a1 - b1
+    if (a2 - b2) return a2 - b2
+    return a3 - b3
+}
+
 function crawl(list, parent) {
     for (const entry of list) {
         if (parent)
@@ -10,11 +18,11 @@ function crawl(list, parent) {
         if (entry.resource) {
             resources[entry.resource] = entry
             const load = entry.getVersions
-            entry.getVersions = async () => entry.versions = await load()
-            entry.contains = version =>
-                entry.versions
-                    ? Object.values(entry.versions).some(v => v === version)
-                    : false
+            entry.getVersions = async () => {
+                entry.versions = (await load()).sort(sortVersions)
+                entry.versions.forEach(v => v.resource = entry)
+                return entry.versions
+            }
         } else {
             if (entry.subdomains)
                 crawl(entry.subdomains, entry)
@@ -25,10 +33,10 @@ function crawl(list, parent) {
                     if (entry.subdomains.some(d => d.contains(item)))
                         return true
                 if (entry.resources)
-                    if (item.resource)
-                        return entry.resources.includes(item)
+                    if (item.getVersions)
+                        return entry === item.parent
                     else
-                        return entry.resources.some(r => r.contains(item))
+                        return entry === item.resource.parent
                 return false
             }
         }

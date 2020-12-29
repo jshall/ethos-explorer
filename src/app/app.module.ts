@@ -7,6 +7,7 @@ import { DomainComponent } from './components/nav/domain/domain.component';
 import { ResourceComponent } from './components/nav/resource/resource.component';
 import { VersionComponent } from './components/nav/version/version.component';
 import { SelectorComponent } from './components/selector/selector.component';
+import { ContentComponent } from './components/content/content.component';
 
 @NgModule({
   declarations: [
@@ -15,7 +16,8 @@ import { SelectorComponent } from './components/selector/selector.component';
     DomainComponent,
     ResourceComponent,
     VersionComponent,
-    SelectorComponent
+    SelectorComponent,
+    ContentComponent
   ],
   imports: [
     BrowserModule

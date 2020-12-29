@@ -17,6 +17,8 @@ export class SelectorComponent implements OnInit {
   constructor(
     private selector: SelectorService
   ) {
+    this.sources = EthosData.sources
+
     this.version = this.selector.version
     this.selector.versionFeed.forEach(item => {
       this.version = item
@@ -33,9 +35,7 @@ export class SelectorComponent implements OnInit {
     })
   }
 
-  ngOnInit(): void {
-    this.sources = EthosData.sources
-  }
+  ngOnInit(): void { }
 
   hasSource(name: string) {
     return !this.version || !this.version.sources ||

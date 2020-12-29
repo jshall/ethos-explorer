@@ -9,10 +9,10 @@ import { EthosData, IDomain } from 'ethos';
 export class NavComponent implements OnInit {
   domains: IDomain[]
 
-  constructor() { }
-
-  ngOnInit(): void {
+  constructor() {
     this.domains = EthosData.domains
   }
+
+  ngOnInit(): void { }
 
 }

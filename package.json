@@ -2,10 +2,12 @@
   "name": "ethos-explorer",
   "version": "0.0.0",
   "scripts": {
-    "ethos-prep": "node ethos-prep",
     "ng": "ng",
+    "prestart": "node ethos-prep",
     "start": "ng serve",
+    "prebuild": "node ethos-prep",
     "build": "ng build",
+    "pretest": "node ethos-prep",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"
