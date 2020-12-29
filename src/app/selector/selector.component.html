@@ -1,8 +1,17 @@
-<button
-  *ngFor="let system of sysNames"
-  (click)="setSysName(system)"
-  [disabled]="hasSystem(system)"
-  [class.active]="system === sysName"
->
-  {{ system }}
-</button>
+<div>
+  <button
+    *ngFor="let system of sysNames"
+    (click)="setSysName(system)"
+    [disabled]="hasSystem(system)"
+    [class.active]="system === sysName">
+    {{ system }}
+  </button>
+</div>
+<div>
+  <button
+    *ngFor="let inf of infoTypes"
+    (click)="setInfo(inf)"
+    [class.active]="inf === info">
+    {{ inf }}
+  </button>
+</div>

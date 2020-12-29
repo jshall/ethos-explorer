@@ -11,22 +11,34 @@ import SwaggerUI from 'swagger-ui';
   templateUrl: './content.component.html',
 })
 export class ContentComponent implements OnInit {
+  info: string
   system?: System
 
   constructor(private selector: SelectorService) {
+    this.info = selector.info
+    selector.infoFeed.forEach(item => {
+      this.info = item
+      this.updateContent()
+    })
     selector.systemFeed.forEach(item => {
       this.system = item
-      if(item)
-      SwaggerUI({
-        dom_id: 'app-content',
-        spec: item.api
-      })
-      else
-        document.getElementsByTagName('app-content')[0].innerHTML = ''
+      this.updateContent()
     })
   }
 
   ngOnInit(): void {
   }
 
+  updateContent() {
+    let swagger;
+    if (this.system && this.info === 'API')
+      setTimeout(() => {
+        SwaggerUI({
+          dom_id: '#swagger',
+          spec: this.system?.api
+        })
+      }, 20);
+    else if (swagger = document.getElementById('swagger'))
+      swagger.innerHTML = ''
+  }
 }

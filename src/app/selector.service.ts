@@ -8,11 +8,15 @@ import { Subject } from 'rxjs';
 })
 export class SelectorService {
   private systemNameSource = new Subject<string>()
+  private infoSource = new Subject<string>()
   private versionSource = new Subject<Version>()
   private systemSource = new Subject<System>()
 
   systemName = 'Colleague'
   systemNameFeed = this.systemNameSource.asObservable()
+
+  info = 'API'
+  infoFeed = this.infoSource.asObservable()
 
   version?: Version
   versionFeed = this.versionSource.asObservable()
@@ -28,6 +32,10 @@ export class SelectorService {
   setSysName(name: string) {
     this.systemNameSource.next(this.systemName = name)
     this.setSystem(this.version?.systems[name])
+  }
+
+  setInfo(name: string) {
+    this.infoSource.next(this.info = name)
   }
 
   setVersion(version: Version | undefined) {
@@ -51,11 +59,13 @@ export class SelectorService {
       let entity = EthosData.entities[r]
       entity?.getVersions().then(versions => {
         let version = versions.find(ver => ver.name === v) || versions.slice(-1)[0]
+        if (event) this.replaceState = true
         this.setVersion(version);
       })
     }
   }
 
+  private replaceState = false
   updateUrl() {
     let res = this.version?.entity.resource
     let ver = this.version?.name
@@ -63,11 +73,15 @@ export class SelectorService {
       let url = `#/${res}/${ver}`
       if (location.hash !== url) {
         console.log('New url', url)
-        history.pushState({}, '', url)
+        if (this.replaceState)
+          history.replaceState({}, '', url)
+        else
+          history.pushState({}, '', url)
       }
       document.title = `${res} v${ver} - Ethos Explorer`
     } else {
       document.title = 'Ethos Explorer'
     }
+    this.replaceState = false
   }
 }

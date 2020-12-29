@@ -8,12 +8,13 @@ body {
 app-root {
   display: grid;
   grid-template-columns: 20%;
-  grid-template-rows: 2em;
+  grid-template-rows: 4em;
   grid-template-areas:
     "nav selector"
     "nav content";
   width: 100vw;
   height: 100vh;
+  overflow: hidden;
 
   app-nav {
     grid-area: nav;
@@ -47,9 +48,14 @@ app-root {
     }
   }
 
-  app-selector {
+  app-selector{
     display: flex;
     grid-area: selector;
+    flex-direction: column;    
+
+    >div {
+    display: flex;
+    flex-grow: 1;
 
     >button {
       flex-grow: 1;
@@ -58,10 +64,10 @@ app-root {
         background-color: aqua;
       }
     }
-  }
+  }}
 
   app-content {
     grid-area: content;
-    overflow-y: auto;
+    overflow: auto;
   }
 }
