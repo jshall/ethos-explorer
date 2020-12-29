@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 
-import { ISource } from 'ethos-prep';
-import { SelectorService } from 'src/app/services/selector.service';
+import { System } from 'src/ethos';
+import { SelectorService } from '../selector.service';
 
 // @ts-expect-error
 import SwaggerUI from 'swagger-ui';
@@ -11,11 +11,11 @@ import SwaggerUI from 'swagger-ui';
   templateUrl: './content.component.html',
 })
 export class ContentComponent implements OnInit {
-  source?: ISource
+  system?: System
 
   constructor(private selector: SelectorService) {
-    selector.sourceFeed.forEach(item => {
-      this.source = item
+    selector.systemFeed.forEach(item => {
+      this.system = item
       if(item)
       SwaggerUI({
         dom_id: 'app-content',

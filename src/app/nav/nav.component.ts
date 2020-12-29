@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 
-import { EthosData, IDomain } from 'ethos';
+import { EthosData, Domain } from 'src/ethos';
 
 @Component({
   selector: 'app-nav',
   templateUrl: './nav.component.html',
 })
 export class NavComponent implements OnInit {
-  domains: IDomain[]
+  domains: Domain[]
 
   constructor() {
     this.domains = EthosData.domains

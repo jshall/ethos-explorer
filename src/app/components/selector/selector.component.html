@@ -1,8 +1,0 @@
-<button
-  *ngFor="let src of sources"
-  (click)="setSourceName(src)"
-  [disabled]="hasSource(src)"
-  [class.active]="src === sourceName"
->
-  {{ src }}
-</button>

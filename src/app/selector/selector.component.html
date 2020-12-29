@@ -1,0 +1,8 @@
+<button
+  *ngFor="let system of sysNames"
+  (click)="setSysName(system)"
+  [disabled]="hasSystem(system)"
+  [class.active]="system === sysName"
+>
+  {{ system }}
+</button>

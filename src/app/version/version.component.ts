@@ -1,13 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core';
-import { IVersion } from 'ethos';
-import { SelectorService } from 'src/app/services/selector.service';
+
+import { Version } from 'src/ethos';
+import { SelectorService } from '../selector.service';
 
 @Component({
   selector: 'app-version',
   templateUrl: './version.component.html',
 })
 export class VersionComponent implements OnInit {
-  @Input() version!: IVersion
+  @Input() version!: Version
 
   constructor(
     private selector: SelectorService

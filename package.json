@@ -3,11 +3,11 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "prestart": "node ethos-prep",
+    "prestart": "node unpack",
     "start": "ng serve",
-    "prebuild": "node ethos-prep",
+    "prebuild": "node unpack",
     "build": "ng build",
-    "pretest": "node ethos-prep",
+    "pretest": "node unpack",
     "test": "ng test",
     "lint": "ng lint",
     "e2e": "ng e2e"

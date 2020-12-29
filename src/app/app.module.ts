@@ -1,20 +1,20 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 
-import { AppComponent } from './components/app.component';
-import { NavComponent } from './components/nav/nav.component';
-import { DomainComponent } from './components/nav/domain/domain.component';
-import { ResourceComponent } from './components/nav/resource/resource.component';
-import { VersionComponent } from './components/nav/version/version.component';
-import { SelectorComponent } from './components/selector/selector.component';
-import { ContentComponent } from './components/content/content.component';
+import { AppComponent } from './app.component';
+import { NavComponent } from './nav/nav.component';
+import { DomainComponent } from './domain/domain.component';
+import { EntityComponent } from './entity/entity.component';
+import { VersionComponent } from './version/version.component';
+import { SelectorComponent } from './selector/selector.component';
+import { ContentComponent } from './content/content.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     NavComponent,
     DomainComponent,
-    ResourceComponent,
+    EntityComponent,
     VersionComponent,
     SelectorComponent,
     ContentComponent

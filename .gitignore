@@ -46,5 +46,5 @@ testem.log
 Thumbs.db
 
 # Ethos data
-/ellucian_ethos_sdk*
-/ethos
+ellucian_ethos_sdk*
+ethos

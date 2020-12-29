@@ -1,7 +1,7 @@
 /// <reference path="index.d.ts" />
-const sources = <%- JSON.stringify(sources) %>;
+const systems = <%- JSON.stringify(systems) %>;
 const domains = <%- JSON.stringify(domains).replace(/"getVersions:(.*?):(.*?)"/g, "async () => (await import(/* webpackChunkName: 'ethos.$1' */ './$1.js'))['$2']") %>;
-const resources = {}
+const entities = {}
 
 function sortVersions(a, b) {
     let [a1, a2, a3] = a.name.split('.').map(n => parseInt(n, 10))
@@ -16,27 +16,27 @@ function crawl(list, parent) {
         if (parent)
             entry.parent = parent
         if (entry.resource) {
-            resources[entry.resource] = entry
+            entities[entry.resource] = entry
             const load = entry.getVersions
             entry.getVersions = async () => {
                 entry.versions = (await load()).sort(sortVersions)
-                entry.versions.forEach(v => v.resource = entry)
+                entry.versions.forEach(v => v.entity = entry)
                 return entry.versions
             }
         } else {
             if (entry.subdomains)
                 crawl(entry.subdomains, entry)
-            if (entry.resources)
-                crawl(entry.resources, entry)
+            if (entry.entities)
+                crawl(entry.entities, entry)
             entry.contains = item => {
                 if (entry.subdomains)
                     if (entry.subdomains.some(d => d.contains(item)))
                         return true
-                if (entry.resources)
-                    if (item.getVersions)
+                if (entry.entities)
+                    if (item.resource)
                         return entry === item.parent
                     else
-                        return entry === item.resource.parent
+                        return entry === item.entity.parent
                 return false
             }
         }
@@ -45,4 +45,4 @@ function crawl(list, parent) {
 // @ts-ignore
 crawl(domains)
 
-exports.EthosData = { sources, domains, resources }
+exports.EthosData = { systems, domains, entities }

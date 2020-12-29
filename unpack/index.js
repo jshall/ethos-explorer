@@ -32,13 +32,13 @@ function createEntry(filename, template, data) {
     fs.writeFileSync(filename, entry)
 }
 
-const resources = {}
+const entities = {}
 const packages = {}
 
 function indexEntity(entity, ...path) {
     const versions = []
     const package = path.reduce((p, n) => p + '.' + n.toLowerCase().replace(/ /g, '-'), '').substring(1)
-    resources[entity.resource] = { entity, versions }
+    entities[entity.resource] = { entity, versions }
     expand(packages, package, {})[entity.resource] = versions
     entity.getVersions = `getVersions:${package}:${entity.resource}`
 }
@@ -46,10 +46,6 @@ function indexDomain(domain, ...path) {
     path = [...path, domain.name]
     domain.entities?.forEach(entity => indexEntity(entity, ...path))
     domain.subdomains?.forEach(domain => indexDomain(domain, ...path))
-    if (domain.entities) {
-        domain.resources = domain.entities
-        delete domain.entities
-    }
 }
 domains.forEach(domain => indexDomain(domain))
 
@@ -80,9 +76,9 @@ let lineage = fs.readFileSync(rel('../ellucian_ethos_sdk/data_dictionary/all-lin
 lineage = papa.parse(lineage, { header: true, transformHeader: h => h.trim(), skipEmptyLines: true }).data
 lineage.forEach(item => {
     if (item.sourceFieldNotes !== 'Not Supported') {
-        let prop = resources[item.model]
+        let prop = entities[item.model]
         prop = expand(prop, ['versions', 'name', item.modver.toString()])
-        prop = expand(prop, 'sources', {})
+        prop = expand(prop, 'systems', {})
         prop = expand(prop, item.src, {})
         prop = expand(prop, 'properties', {})
         prop = expand(prop, item.property, {})
@@ -116,18 +112,18 @@ function forEachPair(obj, func) {
 
 console.log('Parsing definitions...')
 const defs = rel('../ellucian_ethos_sdk/ethos_data_models_and_apis/src')
-const sources = lineage.map(i => i.src).filter((v, i, s) => s.indexOf(v) === i)
+const systems = lineage.map(i => i.src).filter((v, i, s) => s.indexOf(v) === i)
 fs.readdirSync(defs).forEach(resName => {
-    const res = resources[resName]
+    const res = entities[resName]
     fs.readdirSync(path.join(defs, resName)).forEach(ver => {
         const version = expand(res, ['versions', 'name', ver])
         const files = fs.readdirSync(path.join(defs, resName, ver))
         let file = resName + '.json'
         version.schema = require(path.join(defs, resName, ver, file))
-        sources.forEach(src => {
+        systems.forEach(src => {
             if (files.includes(file = src.toLowerCase() + '-' + resName + '.yaml')) {
-                let source = expand(expand(version, 'sources', {}), src, {})
-                source.api = YAML.parse(fs.readFileSync(path.join(defs, resName, ver, file), 'utf8'))
+                let system = expand(expand(version, 'systems', {}), src, {})
+                system.api = YAML.parse(fs.readFileSync(path.join(defs, resName, ver, file), 'utf8'))
             }
         })
     })
@@ -135,18 +131,18 @@ fs.readdirSync(defs).forEach(resName => {
 
 console.log('Creating files...')
 
-fs.rmdirSync('ethos', { recursive: true })
-fs.ensureDirSync('ethos')
+fs.rmdirSync('src/ethos', { recursive: true })
+fs.ensureDirSync('src/ethos')
 fs.readdirSync(rel('.')).filter(n => n.match('.d.ts')).forEach(def => {
-    fs.linkSync(rel('./' + def), 'ethos/' + def)
+    fs.linkSync(rel('./' + def), 'src/ethos/' + def)
 })
 
 const indexTemplate = fs.readFileSync(rel('./index.ejs'), 'utf8')
-createEntry('./ethos/index.js', indexTemplate, { sources, domains })
+createEntry('src/ethos/index.js', indexTemplate, { systems, domains })
 
 const packageTemplate = fs.readFileSync(rel('./package.ejs'), 'utf8')
 forEachPair(packages, (package, content) => {
-    createEntry(`./ethos/${package}.js`, packageTemplate, { content })
+    createEntry(`src/ethos/${package}.js`, packageTemplate, { content })
 })
 
 console.log('Completed generation of Ethos data files.\n')

@@ -1,54 +1,55 @@
 import { Injectable } from '@angular/core';
-import { EthosData, ISource, IVersion } from 'ethos';
+
+import { EthosData, System, Version } from 'src/ethos';
 import { Subject } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class SelectorService {
-  private sourceNameSource = new Subject<string>()
-  private versionSource = new Subject<IVersion>()
-  private sourceSource = new Subject<ISource>()
+  private systemNameSource = new Subject<string>()
+  private versionSource = new Subject<Version>()
+  private systemSource = new Subject<System>()
 
-  sourceName = 'Colleague'
-  sourceNameFeed = this.sourceNameSource.asObservable()
+  systemName = 'Colleague'
+  systemNameFeed = this.systemNameSource.asObservable()
 
-  version?: IVersion
+  version?: Version
   versionFeed = this.versionSource.asObservable()
 
-  source?: ISource
-  sourceFeed = this.sourceSource.asObservable()
+  system?: System
+  systemFeed = this.systemSource.asObservable()
 
   constructor() {
     addEventListener('hashchange', this.followHash.bind(this))
     this.followHash()
   }
 
-  setSourceName(name: string) {
-    this.sourceNameSource.next(this.sourceName = name)
-    this.setSource(this.version?.sources[name])
+  setSysName(name: string) {
+    this.systemNameSource.next(this.systemName = name)
+    this.setSystem(this.version?.systems[name])
   }
 
-  setVersion(version: IVersion | undefined) {
+  setVersion(version: Version | undefined) {
     if (this.version === version)
       return
     this.versionSource.next(this.version = version)
-    this.setSource(version?.sources[this.sourceName])
+    this.setSystem(version?.systems[this.systemName])
     this.updateUrl()
   }
 
-  setSource(source: ISource | undefined) {
-    if (this.source === source)
+  setSystem(system: System | undefined) {
+    if (this.system === system)
       return
-    this.sourceSource.next(this.source = source)
+    this.systemSource.next(this.system = system)
     this.updateUrl()
   }
 
   followHash(event?: Event) {
     let [hash, r, v] = location.hash.split('/')
     if (hash) {
-      let resource = EthosData.resources[r]
-      resource?.getVersions().then(versions => {
+      let entity = EthosData.entities[r]
+      entity?.getVersions().then(versions => {
         let version = versions.find(ver => ver.name === v) || versions.slice(-1)[0]
         this.setVersion(version);
       })
@@ -56,7 +57,7 @@ export class SelectorService {
   }
 
   updateUrl() {
-    let res = this.version?.resource.resource
+    let res = this.version?.entity.resource
     let ver = this.version?.name
     if (ver) {
       let url = `#/${res}/${ver}`
