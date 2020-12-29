@@ -17,8 +17,7 @@ export class EntityComponent implements OnInit {
   ) {
     this.selector.versionFeed.forEach(version => {
       let ele = this.eRef.nativeElement
-      this.collapsed = version.entity !== this.entity
-      if (!this.collapsed)
+      if (!(this.collapsed = !version.from(this.entity)))
         setTimeout(() => ele.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 20)
     })
   }

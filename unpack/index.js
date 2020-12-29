@@ -33,7 +33,7 @@ function createEntry(filename, template, data) {
         let s = `const ${key}$1 = ${JSON.stringify(data[key])}`
         entry = entry.replace(re, s)
     }
-    entry = entry.replace(/"getVersions:(.*?):(.*?)"/g, "async () => (await import(/* webpackChunkName: 'ethos.$1' */ './$1')).content")
+    entry = entry.replace(/"getVersions:(.*?):(.*?)"/g, "async () => (await import(/* webpackChunkName: 'ethos.$1' */ './$1') as any).content")
     fs.ensureFileSync(filename)
     fs.writeFileSync(filename, entry)
 }

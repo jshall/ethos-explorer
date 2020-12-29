@@ -19,7 +19,7 @@ interface VersionData {
     systems?: { [name: string]: System }
 }
 
-export function sortVersions(a: Version, b: Version): number {
+function sortVersions(a: Version, b: Version): number {
     let [a1, a2, a3] = a.name.split('.').map(n => parseInt(n, 10))
     let [b1, b2, b3] = b.name.split('.').map(n => parseInt(n, 10))
     if (a1 - b1) return a1 - b1
@@ -28,35 +28,29 @@ export function sortVersions(a: Version, b: Version): number {
 }
 
 export class Domain {
+    parent?: Domain
     name: string
     subdomains?: Domain[]
     entities?: Entity[]
 
-    constructor(data: DomainData) {
+    constructor(data: DomainData, parent?: Domain) {
         this.name = data.name
+        if (parent)
+            this.parent = parent
         if (data.subdomains)
             this.subdomains =
-                data.subdomains.map(d => new Domain(d))
+                data.subdomains.map(d => new Domain(d, this))
         if (data.entities)
             this.entities =
                 data.entities.map(e => new Entity(e, this))
     }
 
-    contains(item: Entity | Version): boolean {
-        if (this.subdomains)
-            if (this.subdomains.some(d => d.contains(item)))
-                return true
-        if (this.entities)
-            return this === (
-                (item as Entity).parent ||
-                (item as Version).entity?.parent
-            )
-        return false
-    }
+    from = (obj: Domain): boolean =>
+        this.parent === obj || this.parent?.from(obj) || false
 }
 
 export class Entity {
-    parent: Domain
+    domain: Domain
     resource: string
     name: string
     representationType: string
@@ -65,7 +59,7 @@ export class Entity {
 
     constructor(data: EntityData, parent: Domain) {
         entities[data.resource] = this
-        this.parent = parent
+        this.domain = parent
         this.resource = data.resource
         this.name = data.name
         this.representationType = data.representationType
@@ -76,6 +70,9 @@ export class Entity {
                 .sort(sortVersions)
         }
     }
+
+    from = (obj: Domain) =>
+        this.domain === obj || this.domain.from(obj)
 }
 
 export interface PackageData {
@@ -96,6 +93,9 @@ export class Version {
         if (data.systems)
             this.systems = data.systems
     }
+
+    from = (obj: Entity | Domain) =>
+        this.entity === obj || this.entity.from(obj)
 }
 
 export interface System {

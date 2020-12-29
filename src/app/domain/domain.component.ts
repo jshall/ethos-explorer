@@ -13,7 +13,7 @@ export class DomainComponent implements OnInit {
 
   constructor(private selector: SelectorService) {
     this.selector.versionFeed.forEach(version => {
-      this.collapsed = !this.domain.contains(version)
+      this.collapsed = !version.from(this.domain)
     })
   }
 
