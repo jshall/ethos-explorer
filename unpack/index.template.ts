@@ -1,3 +1,5 @@
+import { Schema } from "src/schema"
+
 const entities: { [name: string]: Entity } = {}
 
 interface DomainData {
@@ -82,7 +84,7 @@ export interface PackageData {
 export class Version {
     entity: Entity
     name: string
-    schema?: any
+    schema?: Schema
     systems: { [name: string]: System } = {}
 
     constructor(data: VersionData, parent: Entity) {
