@@ -16,11 +16,11 @@ abstract class SchemaBase {
             case 'number': return new SchemaNumber(obj)
             case 'boolean': return new SchemaSimple(obj)
             case 'null': return new SchemaSimple(obj)
-            default: return console.warn('Unrecognized schema:', obj)
+            default: return new SchemaUnknown(obj)
         }
     }
 
-    abstract toTypeScript(): string
+    abstract toTypeScript(indent?: string): string
 }
 
 export type Schema
@@ -37,7 +37,8 @@ export class SchemaOption extends SchemaBase {
         obj.oneOf?.forEach((i: any) => this.oneOf.push(SchemaBase.from(i)))
     }
 
-    toTypeScript = (): string => `${this.oneOf?.map(i => i.toTypeScript ? i.toTypeScript() : '{}').join(' | ')}`
+    toTypeScript = (indent?: string): string =>
+        `${this.oneOf?.map(i => i.toTypeScript(indent)).filter((v, i, s) => s.indexOf(v) === i).join(' | ')}`
 }
 
 export class SchemaObject extends SchemaBase {
@@ -60,13 +61,13 @@ export class SchemaObject extends SchemaBase {
             })
     }
 
-    toTypeScript(): string {
-        let out = '{\n'
+    toTypeScript(indent: string = ''): string {
+        let out = '{'
         Object.entries(this.properties).forEach(([name, schema]) => {
             let req = this.required?.includes(name) ? '' : '?'
-            out += `\t${name}${req}: ${schema.toTypeScript()} \n`
+            out += `\n${indent}\t${name}${req}: ${schema.toTypeScript(`${indent}\t`)}`
         })
-        return out + '}'
+        return out + (out.length > 1 ? `\n${indent}}` : '}')
     }
 }
 
@@ -81,7 +82,8 @@ export class SchemaArray extends SchemaBase {
         this.items = SchemaBase.from(obj.items)
     }
 
-    toTypeScript = (): string => `Array<${this.items.toTypeScript()}>`
+    toTypeScript = (indent?: string): string =>
+        `Array<${this.items.toTypeScript(indent)}>`
 }
 
 export class SchemaString extends SchemaBase {
@@ -108,4 +110,12 @@ export class SchemaSimple extends SchemaBase {
     type!: 'boolean' | 'null'
 
     toTypeScript = () => this.type
+}
+
+export class SchemaUnknown extends SchemaBase {
+    constructor(obj: any) {
+        super(obj)
+        console.warn('Unknown schema:', obj)
+    }
+    toTypeScript = () => 'unknown'
 }

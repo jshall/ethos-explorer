@@ -8,15 +8,11 @@ import { Subject } from 'rxjs';
 })
 export class SelectorService {
   private systemNameSource = new Subject<string>()
-  private infoSource = new Subject<string>()
   private versionSource = new Subject<Version>()
   private systemSource = new Subject<System>()
 
   systemName = 'Colleague'
   systemNameFeed = this.systemNameSource.asObservable()
-
-  info = 'API'
-  infoFeed = this.infoSource.asObservable()
 
   version?: Version
   versionFeed = this.versionSource.asObservable()
@@ -32,10 +28,6 @@ export class SelectorService {
   setSysName(name: string) {
     this.systemNameSource.next(this.systemName = name)
     this.setSystem(this.version?.systems[name])
-  }
-
-  setInfo(name: string) {
-    this.infoSource.next(this.info = name)
   }
 
   setVersion(version: Version | undefined) {

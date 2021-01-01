@@ -7,8 +7,8 @@ body {
 
 app-root {
   display: grid;
-  grid-template-columns: 20%;
-  grid-template-rows: 4em;
+  grid-template-columns: 18em 1fr;
+  grid-template-rows: 2em 1fr;
   grid-template-areas:
     "nav selector"
     "nav content";
@@ -48,30 +48,38 @@ app-root {
     }
   }
 
-  app-selector{
+  app-selector {
     display: flex;
     grid-area: selector;
-    flex-direction: column;    
+    flex-direction: column;
 
     >div {
-    display: flex;
-    flex-grow: 1;
-
-    >button {
+      display: flex;
       flex-grow: 1;
 
-      &.active {
-        background-color: aqua;
+      >button {
+        flex-grow: 1;
+
+        &.active {
+          background-color: aqua;
+        }
       }
     }
-  }}
+  }
 
   app-content {
+    display: grid;
     grid-area: content;
-    overflow: auto;
+    overflow: hidden;
+    grid-template-columns: auto 1fr;
+
+    >* {
+      overflow: auto;
+    }
 
     #schema {
       white-space: pre;
+      tab-size: 4;
     }
   }
 }

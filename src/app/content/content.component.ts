@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 
-import { System, Version } from 'src/ethos';
 import { SelectorService } from '../selector.service';
 
 // @ts-expect-error
@@ -11,41 +10,32 @@ import SwaggerUI from 'swagger-ui';
   templateUrl: './content.component.html',
 })
 export class ContentComponent implements OnInit {
-  info: string
-  version?: Version
-  system?: System
   schema = ''
 
   constructor(private selector: SelectorService) {
-    this.info = selector.info
-    selector.infoFeed.forEach(item => {
-      this.info = item
-      this.updateContent()
+    selector.versionFeed.forEach(version => {
+      if (version?.schema)
+        this.schema = version.schema.toTypeScript()
+      else
+        this.schema = ''
     })
-    selector.versionFeed.forEach(item => {
-      this.version = item
-      this.updateContent()
-    })
-    selector.systemFeed.forEach(item => {
-      this.system = item
-      this.updateContent()
+
+    selector.systemFeed.forEach(system => {
+      if (system)
+        setTimeout(() => {
+          SwaggerUI({
+            dom_id: '#swagger',
+            spec: system?.api
+          })
+        }, 20);
+      else {
+        let swagger;
+        if (swagger = document.getElementById('swagger'))
+          swagger.innerHTML = ''
+      }
     })
   }
 
   ngOnInit(): void {
-  }
-
-  updateContent() {
-    let swagger;
-    if (this.system && this.info === 'API')
-      setTimeout(() => {
-        SwaggerUI({
-          dom_id: '#swagger',
-          spec: this.system?.api
-        })
-      }, 20);
-    else if (swagger = document.getElementById('swagger'))
-      swagger.innerHTML = ''
-    this.schema = this.version?.schema?.toTypeScript() || ''
   }
 }

@@ -12,7 +12,6 @@ export class SelectorComponent implements OnInit {
   infoTypes = ['Schema', 'API']
 
   sysName: string
-  info: string
   version?: Version
   system?: System
 
@@ -31,11 +30,6 @@ export class SelectorComponent implements OnInit {
       this.sysName = item
     })
 
-    this.info = this.selector.info
-    this.selector.infoFeed.forEach(item => {
-      this.info = item
-    })
-
     this.system = this.selector.system
     this.selector.systemFeed.forEach(item => {
       this.system = item
@@ -51,9 +45,5 @@ export class SelectorComponent implements OnInit {
 
   setSysName(name: string) {
     this.selector.setSysName(name)
-  }
-
-  setInfo(name: string) {
-    this.selector.setInfo(name)
   }
 }

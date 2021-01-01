@@ -7,11 +7,3 @@
     {{ system }}
   </button>
 </div>
-<div>
-  <button
-    *ngFor="let inf of infoTypes"
-    (click)="setInfo(inf)"
-    [class.active]="inf === info">
-    {{ inf }}
-  </button>
-</div>
