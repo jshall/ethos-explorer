@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { System } from 'src/ethos';
+import { System, Version } from 'src/ethos';
 import { SelectorService } from '../selector.service';
 
 // @ts-expect-error
@@ -12,12 +12,18 @@ import SwaggerUI from 'swagger-ui';
 })
 export class ContentComponent implements OnInit {
   info: string
+  version?: Version
   system?: System
+  schema = ''
 
   constructor(private selector: SelectorService) {
     this.info = selector.info
     selector.infoFeed.forEach(item => {
       this.info = item
+      this.updateContent()
+    })
+    selector.versionFeed.forEach(item => {
+      this.version = item
       this.updateContent()
     })
     selector.systemFeed.forEach(item => {
@@ -40,5 +46,6 @@ export class ContentComponent implements OnInit {
       }, 20);
     else if (swagger = document.getElementById('swagger'))
       swagger.innerHTML = ''
+    this.schema = this.version?.schema?.toTypeScript() || ''
   }
 }

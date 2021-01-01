@@ -69,5 +69,9 @@ app-root {
   app-content {
     grid-area: content;
     overflow: auto;
+
+    #schema {
+      white-space: pre;
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Schema } from "src/schema"
+import { Schema, SchemaObject } from "src/schema"
 
 const entities: { [name: string]: Entity } = {}
 
@@ -91,7 +91,7 @@ export class Version {
         this.entity = parent
         this.name = data.name
         if (data.schema)
-            this.schema = data.schema
+            this.schema = new SchemaObject(data.schema)
         if (data.systems)
             this.systems = data.systems
     }
