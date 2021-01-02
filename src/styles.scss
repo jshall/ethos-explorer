@@ -10,7 +10,7 @@ app-root {
   grid-template-columns: 18em 1fr;
   grid-template-rows: 2em 1fr;
   grid-template-areas:
-    "nav selector"
+    "nav system"
     "nav content";
   width: 100vw;
   height: 100vh;
@@ -48,9 +48,9 @@ app-root {
     }
   }
 
-  app-selector {
+  app-system {
     display: flex;
-    grid-area: selector;
+    grid-area: system;
     flex-direction: column;
 
     >div {

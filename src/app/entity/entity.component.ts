@@ -1,7 +1,7 @@
 import { Component, ElementRef, HostBinding, Input, OnInit } from '@angular/core'
 
 import { Entity } from 'src/ethos'
-import { SelectorService } from '../selector.service';
+import { RouteService } from '../route.service';
 
 @Component({
   selector: 'app-entity',
@@ -12,10 +12,10 @@ export class EntityComponent implements OnInit {
   @HostBinding('class.collapsed') collapsed = true;
 
   constructor(
-    private selector: SelectorService,
+    private route: RouteService,
     private eRef: ElementRef
   ) {
-    this.selector.versionFeed.forEach(version => {
+    this.route.versionFeed.forEach(version => {
       let ele = this.eRef.nativeElement
       if (!(this.collapsed = !version.from(this.entity)))
         setTimeout(() => ele.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 20)

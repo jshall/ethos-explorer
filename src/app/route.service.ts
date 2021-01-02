@@ -6,7 +6,7 @@ import { Subject } from 'rxjs';
 @Injectable({
   providedIn: 'root'
 })
-export class SelectorService {
+export class RouteService {
   private systemNameSource = new Subject<string>()
   private versionSource = new Subject<Version>()
   private systemSource = new Subject<System>()

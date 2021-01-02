@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core';
 
 import { Version } from 'src/ethos';
-import { SelectorService } from '../selector.service';
+import { RouteService } from '../route.service';
 
 @Component({
   selector: 'app-version',
@@ -11,12 +11,12 @@ export class VersionComponent implements OnInit {
   @Input() version!: Version
 
   constructor(
-    private selector: SelectorService
+    private route: RouteService
   ) { }
 
   ngOnInit() { }
 
   setVersion() {
-    this.selector.setVersion(this.version)
+    this.route.setVersion(this.version)
   }
 }

@@ -1,13 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 
 import { EthosData, System, Version } from 'src/ethos';
-import { SelectorService } from '../selector.service';
+import { RouteService } from '../route.service';
 
 @Component({
-  selector: 'app-selector',
-  templateUrl: './selector.component.html',
+  selector: 'app-system',
+  templateUrl: './system.component.html',
 })
-export class SelectorComponent implements OnInit {
+export class SystemComponent implements OnInit {
   sysNames: string[]
   infoTypes = ['Schema', 'API']
 
@@ -16,22 +16,22 @@ export class SelectorComponent implements OnInit {
   system?: System
 
   constructor(
-    private selector: SelectorService
+    private route: RouteService
   ) {
     this.sysNames = EthosData.systems
 
-    this.version = this.selector.version
-    this.selector.versionFeed.forEach(item => {
+    this.version = this.route.version
+    this.route.versionFeed.forEach(item => {
       this.version = item
     })
 
-    this.sysName = this.selector.systemName
-    this.selector.systemNameFeed.forEach(item => {
+    this.sysName = this.route.systemName
+    this.route.systemNameFeed.forEach(item => {
       this.sysName = item
     })
 
-    this.system = this.selector.system
-    this.selector.systemFeed.forEach(item => {
+    this.system = this.route.system
+    this.route.systemFeed.forEach(item => {
       this.system = item
     })
   }
@@ -44,6 +44,6 @@ export class SelectorComponent implements OnInit {
   }
 
   setSysName(name: string) {
-    this.selector.setSysName(name)
+    this.route.setSysName(name)
   }
 }

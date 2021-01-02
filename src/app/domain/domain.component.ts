@@ -1,7 +1,7 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core';
 
 import { Domain } from 'src/ethos';
-import { SelectorService } from '../selector.service';
+import { RouteService } from '../route.service';
 
 @Component({
   selector: 'app-domain',
@@ -11,8 +11,8 @@ export class DomainComponent implements OnInit {
   @Input() domain!: Domain
   @HostBinding('class.collapsed') collapsed = true;
 
-  constructor(private selector: SelectorService) {
-    this.selector.versionFeed.forEach(version => {
+  constructor(private route: RouteService) {
+    this.route.versionFeed.forEach(version => {
       this.collapsed = !version.from(this.domain)
     })
   }

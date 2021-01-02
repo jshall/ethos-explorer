@@ -6,7 +6,7 @@ import { NavComponent } from './nav/nav.component';
 import { DomainComponent } from './domain/domain.component';
 import { EntityComponent } from './entity/entity.component';
 import { VersionComponent } from './version/version.component';
-import { SelectorComponent } from './selector/selector.component';
+import { SystemComponent } from './system/system.component';
 import { ContentComponent } from './content/content.component';
 
 @NgModule({
@@ -16,7 +16,7 @@ import { ContentComponent } from './content/content.component';
     DomainComponent,
     EntityComponent,
     VersionComponent,
-    SelectorComponent,
+    SystemComponent,
     ContentComponent
   ],
   imports: [

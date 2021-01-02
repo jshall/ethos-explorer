@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 
-import { SelectorService } from '../selector.service';
+import { RouteService } from '../route.service';
 
 // @ts-expect-error
 import SwaggerUI from 'swagger-ui';
@@ -12,15 +12,15 @@ import SwaggerUI from 'swagger-ui';
 export class ContentComponent implements OnInit {
   schema = ''
 
-  constructor(private selector: SelectorService) {
-    selector.versionFeed.forEach(version => {
+  constructor(private route: RouteService) {
+    this.route.versionFeed.forEach(version => {
       if (version?.schema)
         this.schema = version.schema.toTypeScript()
       else
         this.schema = ''
     })
 
-    selector.systemFeed.forEach(system => {
+    this.route.systemFeed.forEach(system => {
       if (system)
         setTimeout(() => {
           SwaggerUI({
