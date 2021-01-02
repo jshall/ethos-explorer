@@ -8,6 +8,7 @@ import { EntityComponent } from './entity/entity.component';
 import { VersionComponent } from './version/version.component';
 import { SystemComponent } from './system/system.component';
 import { ContentComponent } from './content/content.component';
+import { SearchComponent } from './search/search.component';
 
 @NgModule({
   declarations: [
@@ -17,7 +18,8 @@ import { ContentComponent } from './content/content.component';
     EntityComponent,
     VersionComponent,
     SystemComponent,
-    ContentComponent
+    ContentComponent,
+    SearchComponent
   ],
   imports: [
     BrowserModule

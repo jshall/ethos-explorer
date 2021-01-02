@@ -10,11 +10,20 @@ app-root {
   grid-template-columns: 18em 1fr;
   grid-template-rows: 2em 1fr;
   grid-template-areas:
-    "nav system"
+    "search system"
     "nav content";
   width: 100vw;
   height: 100vh;
   overflow: hidden;
+
+  app-search {
+    display: flex;
+    justify-items: stretch;
+
+    input {
+      width: 100%;
+    }
+  }
 
   app-nav {
     grid-area: nav;
