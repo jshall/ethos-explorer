@@ -115,7 +115,6 @@ export class SchemaSimple extends SchemaBase {
 export class SchemaUnknown extends SchemaBase {
     constructor(obj: any) {
         super(obj)
-        console.warn('Unknown schema:', obj)
     }
     toTypeScript = () => 'unknown'
 }

@@ -10,13 +10,10 @@ import { RouteService } from '../route.service';
 export class VersionComponent implements OnInit {
   @Input() version!: Version
 
-  constructor(
-    private route: RouteService
-  ) { }
+  set routeVersion(value: Version) { this.route.version = value }
+
+  constructor(private route: RouteService) { }
 
   ngOnInit() { }
 
-  setVersion() {
-    this.route.setVersion(this.version)
-  }
 }

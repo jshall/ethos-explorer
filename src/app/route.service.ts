@@ -7,60 +7,58 @@ import { Subject } from 'rxjs';
   providedIn: 'root'
 })
 export class RouteService {
-  private systemNameSource = new Subject<string>()
-  private versionSource = new Subject<Version>()
-  private systemSource = new Subject<System>()
+  private _systemName = 'Colleague'
+  private readonly systemNameSource = new Subject<string>()
+  readonly systemNameFeed = this.systemNameSource.asObservable()
+  get systemName() { return this._systemName }
+  set systemName(name: string) {
+    if (this._systemName === name) return
+    this.systemNameSource.next(this._systemName = name)
+    this.system = this._version?.systems[name]
+  }
 
-  systemName = 'Colleague'
-  systemNameFeed = this.systemNameSource.asObservable()
+  private _version?: Version
+  private readonly versionSource = new Subject<Version>()
+  readonly versionFeed = this.versionSource.asObservable()
+  get version() { return this._version }
+  set version(version: Version | undefined) {
+    if (this._version === version) return
+    this.versionSource.next(this._version = version)
+    this.system = version?.systems[this._systemName]
+    this.updateUrl()
+  }
 
-  version?: Version
-  versionFeed = this.versionSource.asObservable()
-
-  system?: System
-  systemFeed = this.systemSource.asObservable()
+  private _system?: System
+  private readonly systemSource = new Subject<System>()
+  readonly systemFeed = this.systemSource.asObservable()
+  get system() { return this._system }
+  set system(system: System | undefined) {
+    if (this._system === system) return
+    this.systemSource.next(this._system = system)
+    this.updateUrl()
+  }
 
   constructor() {
     addEventListener('hashchange', this.followHash.bind(this))
     this.followHash()
   }
 
-  setSysName(name: string) {
-    this.systemNameSource.next(this.systemName = name)
-    this.setSystem(this.version?.systems[name])
-  }
-
-  setVersion(version: Version | undefined) {
-    if (this.version === version)
-      return
-    this.versionSource.next(this.version = version)
-    this.setSystem(version?.systems[this.systemName])
-    this.updateUrl()
-  }
-
-  setSystem(system: System | undefined) {
-    if (this.system === system)
-      return
-    this.systemSource.next(this.system = system)
-    this.updateUrl()
-  }
-
-  followHash(event?: Event) {
+  private followHash(event?: Event) {
     let [hash, r, v] = location.hash.split('/')
     if (hash) {
       let entity = EthosData.entities[r]
       entity?.getVersions().then(versions => {
         let version = versions.find(ver => ver.name === v) || versions.slice(-1)[0]
         if (event) this.replaceState = true
-        this.setVersion(version);
+        this.version = version;
       })
     }
   }
 
   private replaceState = false
-  updateUrl() {
-    let res = this.version?.entity.resource
-    let ver = this.version?.name
+  private updateUrl() {
+    let res = this._version?.entity.resource
+    let ver = this._version?.name
     if (ver) {
       let url = `#/${res}/${ver}`
       if (location.hash !== url) {

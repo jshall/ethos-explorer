@@ -81,5 +81,20 @@ app-root {
       white-space: pre;
       tab-size: 4;
     }
+
+    .swagger-ui {
+      .scheme-container {
+        margin: 30px 0 20px;
+        padding: 0 0 30px;
+
+        .schemes {
+          flex-flow: wrap;
+        }
+      }
+
+      .auth-wrapper .authorize {
+        margin: 10px 0 0 0;
+      }
+    }
   }
 }

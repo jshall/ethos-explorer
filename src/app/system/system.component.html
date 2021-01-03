@@ -1,9 +1,9 @@
 <div>
   <button
-    *ngFor="let system of sysNames"
-    (click)="setSysName(system)"
-    [disabled]="hasSystem(system)"
-    [class.active]="system === sysName">
-    {{ system }}
+    *ngFor="let name of systemNames"
+    (click)="systemName = name"
+    [disabled]="isInvalid(name)"
+    [class.active]="name === systemName">
+    {{ name }}
   </button>
 </div>
