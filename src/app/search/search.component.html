@@ -1,6 +1,6 @@
 <input
   #input
   placeholder="Search..."
-  (input)="search(input.value)"
-  (keyup.escape)="search((input.value = ''))"
+  (input)="search($event)"
+  (keyup.escape)="reset()"
 />
