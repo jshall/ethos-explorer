@@ -28,20 +28,21 @@ export class SearchService {
 
   reset() { this.resetSource.next() }
 
-  private childSearches(state: SearchState, children: Promise<SearchState>[]): Promise<SearchState> {
+  private childSearches(state: SearchState, children: Promise<SearchState>[]): Promise<void> {
     let settled = 0
     let found = false
     return new Promise(resolve =>
       children.forEach(child => child
         .then(result => {
-          if (state.merge(result)) {
+          if (!found && state.merge(result)) {
             found = true
-            resolve(state)
+            resolve()
           }
         })
+        .catch(error => console.error(error))
         .finally(() => {
           if (!found && ++settled === children.length)
-            resolve(state)
+            resolve()
         })
       )
     )
@@ -56,9 +57,10 @@ export class SearchService {
     domain.entities?.forEach(entity => children.push(this.searchEntity(state.token.newState(entity))))
 
     if (state.test('title', domain.name))
-      return state
+      return state.markComplete()
 
-    return await this.childSearches(state, children)
+    await this.childSearches(state, children)
+    return state.markComplete()
   }
 
   async searchEntity(state: SearchState): Promise<SearchState> {
@@ -70,11 +72,12 @@ export class SearchService {
     let children = entity.versions!.map(version => this.searchVersion(state.token.newState(version)))
 
     if (state.test('title', entity.name))
-      return state
+      return state.markComplete()
     if (state.test('resource', entity.resource))
-      return state
+      return state.markComplete()
 
-    return await this.childSearches(state, children)
+    await this.childSearches(state, children)
+    return state.markComplete()
   }
 
   async searchVersion(state: SearchState): Promise<SearchState> {
@@ -82,64 +85,109 @@ export class SearchService {
       throw new Error('State should represent a Version')
     let version = state.item
     if (state.test('version', version.name))
-      return state
+      return state.markComplete()
     if (Object.keys(version.systems).some(sys => state.test('system', sys)))
-      return state
+      return state.markComplete()
 
-    return state
+    return state.markComplete()
   }
 }
 
 type query = string | [string, ...query[]]
-type state = boolean | [string, ...state[]]
+
+class StateData {
+  operation: string
+  items: Array<{ word: string, found: boolean } | StateData>
+
+  constructor(query: query) {
+    if (typeof query === 'string') {
+      this.operation = '|'
+      this.items = [{ word: query, found: false }]
+    }
+    else {
+      let [op, ...words] = query
+      this.operation = op
+      this.items = []
+      for (const word of words) {
+        if (typeof word === 'string')
+          this.items.push({ word, found: false })
+        else
+          this.items.push(new StateData(word))
+      }
+    }
+  }
+
+  toBoolean(): boolean {
+    switch (this.operation) {
+      case '|': return this.items.reduce<boolean>((p, c) => p || this.reduce(c), false)
+      case '&': return this.items.reduce<boolean>((p, c) => p && this.reduce(c), true)
+      default: return this.reduce(this.items[0])
+    }
+  }
+
+  private reduce(item: { found: boolean } | StateData) {
+    return item instanceof StateData ? item.toBoolean() : item.found
+  }
+
+  test(id: string, value: string) {
+    if (['|', '&', id].includes(this.operation))
+      for (const item of this.items) {
+        if (item instanceof StateData)
+          item.test(id, value)
+        else
+          item.found = item.found || !!value.toLowerCase().match(item.word.toLowerCase())
+      }
+  }
+
+  merge(other: StateData) {
+    for (const i in this.items) {
+      const item = this.items[i]
+      const src = other.items[i]
+      if (item instanceof StateData)
+        item.merge(src as typeof item)
+      else
+        item.found = item.found || (src as typeof item).found
+    }
+  }
+}
 
 class SearchState {
-  private readonly state: state
+  private readonly state: StateData
+  private completed = false
 
   readonly token: SearchToken
   readonly item: object
-  get success() { return this.reduce(this.state) }
+  get success() {
+    if (!this.completed)
+      throw new Error("Still searching");
+    return this.state.toBoolean()
+  }
   get active() { return this.token === currentToken }
 
   constructor(token: SearchToken, item: object) {
     this.token = token
     this.item = item
-    this.state = this.newState(token.query)
-  }
-
-  private newState(query: query): state {
-    if (typeof query === 'string')
-      return false
-    let [key, ...words] = query
-    let state: [string, ...state[]] = [key]
-    words.forEach(word => {
-      if (typeof word === 'string')
-        state.push(false)
-      else
-        state.push(this.newState(word))
-    })
-    return state
-  }
-
-  private reduce(state: state): boolean {
-    if (typeof state === 'boolean')
-      return state
-    let [op, ...states] = state
-    switch (op) {
-      case '|': return states.reduce<boolean>((p, c) => p || this.reduce(c), false)
-      case '&': return states.reduce<boolean>((p, c) => p && this.reduce(c), true)
-      default: return this.reduce(states[0])
-    }
+    this.state = new StateData(token.query)
   }
 
   test(id: string, value: string): boolean {
-    // TODO: cycle query and update state
-    return this.success
+    if (this.completed)
+      throw new Error("Search was marked as complete");
+    this.state.test(id, value)
+    return this.state.toBoolean()
   }
 
-  merge(result: SearchState) {
-    // TODO: merge result state into this one
-    return this.success
+  markComplete(): SearchState {
+    this.completed = true
+    resultSource.next(this)
+    return this
+  }
+
+  merge(other: SearchState): boolean {
+    if (this.completed || !other.completed || other.token !== this.token)
+      throw new Error('Incompatible states')
+    this.state.merge(other.state)
+    return this.state.toBoolean()
   }
 }
 
