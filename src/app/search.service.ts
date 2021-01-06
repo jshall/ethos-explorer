@@ -2,8 +2,8 @@ import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
 import { Domain, Entity, EthosData, Version } from 'src/ethos';
 
-let currentToken: SearchToken
-const resultSource = new Subject<SearchState>()
+let currentQuery: Query | undefined
+const results = new Subject<SearchState>()
 
 @Injectable({
   providedIn: 'root'
@@ -11,22 +11,25 @@ const resultSource = new Subject<SearchState>()
 export class SearchService {
   private readonly resetSource = new Subject<void>()
 
-  readonly resultFeed = resultSource.asObservable()
+  readonly resultFeed = results.asObservable()
   readonly resetFeed = this.resetSource.asObservable()
 
   constructor() { }
 
-  search(query: query): void {
+  search(query: Query): void {
     if (!query)
       return this.reset()
-    let token = new SearchToken(query)
-    currentToken = token
+    currentQuery = query
     setTimeout(() => {
-      EthosData.domains.map(domain => this.searchDomain(token.newState(domain)))
-    }, 0)
+      for (const domain of EthosData.domains)
+        this.searchDomain(new SearchState(query, domain))
+    }, 1)
   }
 
-  reset() { this.resetSource.next() }
+  reset() {
+    currentQuery = undefined
+    this.resetSource.next()
+  }
 
   private childSearches(state: SearchState, children: Promise<SearchState>[]): Promise<void> {
     let settled = 0
@@ -53,8 +56,8 @@ export class SearchService {
       throw new Error('State should represent a Domain')
     let domain = state.item
     let children: Promise<SearchState>[] = []
-    domain.subdomains?.forEach(domain => children.push(this.searchDomain(state.token.newState(domain))))
-    domain.entities?.forEach(entity => children.push(this.searchEntity(state.token.newState(entity))))
+    domain.subdomains?.forEach(domain => children.push(this.searchDomain(state.new(domain))))
+    domain.entities?.forEach(entity => children.push(this.searchEntity(state.new(entity))))
 
     if (state.test('title', domain.name))
       return state.markComplete()
@@ -69,7 +72,7 @@ export class SearchService {
     let entity = state.item
     if (!entity.versions)
       await entity.getVersions()
-    let children = entity.versions!.map(version => this.searchVersion(state.token.newState(version)))
+    let children = entity.versions!.map(version => this.searchVersion(state.new(version)))
 
     if (state.test('title', entity.name))
       return state.markComplete()
@@ -93,15 +96,15 @@ export class SearchService {
   }
 }
 
-type query = string | [string, ...query[]]
+type Query = string | [string, ...Query[]]
 
 class StateData {
   operation: string
   items: Array<{ word: string, found: boolean } | StateData>
 
-  constructor(query: query) {
+  constructor(query: Query) {
     if (typeof query === 'string') {
-      this.operation = '|'
+      this.operation = '&'
       this.items = [{ word: query, found: false }]
     }
     else {
@@ -134,7 +137,7 @@ class StateData {
       for (const item of this.items) {
         if (item instanceof StateData)
           item.test(id, value)
-        else
+       else
           item.found = item.found || !!value.toLowerCase().match(item.word.toLowerCase())
       }
   }
@@ -152,51 +155,43 @@ class StateData {
 }
 
 class SearchState {
-  private readonly state: StateData
+  private readonly data: StateData
   private completed = false
 
-  readonly token: SearchToken
+  readonly query: Query
   readonly item: object
   get success() {
     if (!this.completed)
-      throw new Error("Still searching");
-    return this.state.toBoolean()
+      throw new Error("Still searching")
+    return this.data.toBoolean()
   }
-  get active() { return this.token === currentToken }
+  get active() { return this.query === currentQuery; }
 
-  constructor(token: SearchToken, item: object) {
-    this.token = token
+  constructor(query: Query, item: object) {
+    this.query = query
     this.item = item
-    this.state = new StateData(token.query)
+    this.data = new StateData(query)
   }
+
+  new(item: object) { return new SearchState(this.query, item) }
 
   test(id: string, value: string): boolean {
     if (this.completed)
-      throw new Error("Search was marked as complete");
-    this.state.test(id, value)
-    return this.state.toBoolean()
+      throw new Error("Search was marked as complete")
+    this.data.test(id, value)
+    return this.data.toBoolean()
   }
 
   markComplete(): SearchState {
     this.completed = true
-    resultSource.next(this)
+    results.next(this)
     return this
   }
 
   merge(other: SearchState): boolean {
-    if (this.completed || !other.completed || other.token !== this.token)
+    if (this.completed || !other.completed || other.query !== this.query)
       throw new Error('Incompatible states')
-    this.state.merge(other.state)
-    return this.state.toBoolean()
+    this.data.merge(other.data)
+    return this.data.toBoolean()
   }
-}
-
-export class SearchToken {
-  readonly query: query
-
-  constructor(query: query) {
-    this.query = query
-  }
-
-  newState(item: object) { return new SearchState(this, item) }
 }
