@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { EthosData, Domain } from 'src/ethos';
 
@@ -6,13 +6,11 @@ import { EthosData, Domain } from 'src/ethos';
   selector: 'app-nav',
   templateUrl: './nav.component.html',
 })
-export class NavComponent implements OnInit {
+export class NavComponent {
   domains: Domain[]
 
   constructor() {
     this.domains = EthosData.domains
   }
-
-  ngOnInit(): void { }
 
 }

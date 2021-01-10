@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 import { Grammar, Parser } from 'nearley';
 import { SearchService } from '../search.service';
 import grammar from './search.grammar';
@@ -7,12 +7,9 @@ import grammar from './search.grammar';
   selector: 'app-search',
   templateUrl: './search.component.html',
 })
-export class SearchComponent implements OnInit {
+export class SearchComponent {
 
   constructor(private service: SearchService) { }
-
-  ngOnInit(): void {
-  }
 
   search(event: any) {
     let target = event.target as HTMLInputElement

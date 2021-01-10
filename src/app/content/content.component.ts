@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component } from '@angular/core';
 
 import { RouteService } from '../route.service';
 
@@ -9,7 +9,7 @@ import SwaggerUI from 'swagger-ui';
   selector: 'app-content',
   templateUrl: './content.component.html',
 })
-export class ContentComponent implements OnInit {
+export class ContentComponent {
   schema = ''
 
   constructor(private route: RouteService) {
@@ -36,6 +36,4 @@ export class ContentComponent implements OnInit {
     })
   }
 
-  ngOnInit(): void {
-  }
 }

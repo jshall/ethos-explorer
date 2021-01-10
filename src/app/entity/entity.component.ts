@@ -1,4 +1,4 @@
-import { Component, ElementRef, HostBinding, Input, OnInit } from '@angular/core'
+import { Component, ElementRef, HostBinding, Input } from '@angular/core'
 
 import { Entity } from 'src/ethos'
 import { RouteService } from '../route.service';
@@ -8,7 +8,7 @@ import { SearchService } from '../search.service';
   selector: 'app-entity',
   templateUrl: './entity.component.html',
 })
-export class EntityComponent implements OnInit {
+export class EntityComponent {
   @Input() entity!: Entity
   @HostBinding('class.collapsed') collapsed = true;
   @HostBinding('style.display') display?: string
@@ -41,12 +41,10 @@ export class EntityComponent implements OnInit {
     })
   }
 
-  async ngOnInit(): Promise<void> {
-    await this.entity.getVersions()
-  }
-
   toggle() {
     this.collapsed = !this.collapsed
+    if (!this.collapsed && !this.entity.versions)
+      this.entity.getVersions()
   }
 
 }

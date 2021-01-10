@@ -6,7 +6,7 @@
     "prestart": "node unpack",
     "start": "ng serve",
     "prebuild": "node unpack",
-    "build": "ng build",
+    "build": "ng build --prod",
     "pretest": "node unpack",
     "test": "ng test",
     "lint": "ng lint",

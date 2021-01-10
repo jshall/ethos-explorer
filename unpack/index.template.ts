@@ -18,7 +18,12 @@ interface EntityData {
 interface VersionData {
     name: string
     schema?: any
-    systems?: { [name: string]: System }
+    systems?: { [name: string]: SystemData }
+}
+
+interface SystemData {
+    api?: any
+    properties?: { [name: string]: Property }
 }
 
 function sortVersions(a: Version, b: Version): number {
@@ -93,16 +98,26 @@ export class Version {
         if (data.schema)
             this.schema = new SchemaObject(data.schema)
         if (data.systems)
-            this.systems = data.systems
+            for (const name in data.systems)
+                this.systems[name] = new System(data.systems[name], this)
     }
 
     from = (obj: Entity | Domain) =>
         this.entity === obj || this.entity.from(obj)
 }
 
-export interface System {
+export class System {
+    version: Version
     api?: any
     properties?: { [name: string]: Property }
+
+    constructor(data: SystemData, parent: Version) {
+        this.version = parent
+        if (data.api)
+            this.api = data.api
+        if (data.properties)
+            this.properties = data.properties
+    }
 }
 
 export interface Property {

@@ -1,4 +1,4 @@
-import { Component, HostBinding, Input, OnInit } from '@angular/core';
+import { Component, HostBinding, Input } from '@angular/core';
 
 import { Domain } from 'src/ethos';
 import { RouteService } from '../route.service';
@@ -8,7 +8,7 @@ import { SearchService } from '../search.service';
   selector: 'app-domain',
   templateUrl: './domain.component.html',
 })
-export class DomainComponent implements OnInit {
+export class DomainComponent {
   @Input() domain!: Domain
   @HostBinding('class.collapsed') collapsed = true
   @HostBinding('style.display') display?: string
@@ -35,8 +35,6 @@ export class DomainComponent implements OnInit {
       this.collapsed = !this.active
     })
   }
-
-  ngOnInit() { }
 
   toggle() {
     this.collapsed = !this.collapsed

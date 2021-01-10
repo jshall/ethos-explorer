@@ -1,4 +1,4 @@
 <button (click)="toggle()">{{entity.name}}</button>
-<div class="items">
+<div *ngIf="entity.versions" class="items">
     <app-version *ngFor="let version of entity.versions" [version]="version"></app-version>
 </div>
