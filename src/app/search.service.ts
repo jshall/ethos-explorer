@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Subject } from 'rxjs';
-import { Domain, Entity, EthosData, Version } from 'src/ethos';
+import { Domain, Entity, EthosData, Property, System, Version } from 'src/ethos';
 
 let currentQuery: Query | undefined
 const results = new Subject<SearchState>()
@@ -31,13 +31,15 @@ export class SearchService {
     this.resetSource.next()
   }
 
-  private childSearches(state: SearchState, children: Promise<SearchState>[]): Promise<void> {
+  private childSearches(state: SearchState, children: Promise<SearchState>[], mergePartial = true): Promise<void> {
     let settled = 0
     let found = false
+    if (!children.length)
+      return Promise.resolve()
     return new Promise(resolve =>
       children.forEach(child => child
         .then(result => {
-          if (!found && state.merge(result)) {
+          if (!found && (mergePartial || result.success) && state.merge(result)) {
             found = true
             resolve()
           }
@@ -62,7 +64,7 @@ export class SearchService {
     if (state.test('title', domain.name))
       return state.markComplete()
 
-    await this.childSearches(state, children)
+    await this.childSearches(state, children, false)
     return state.markComplete()
   }
 
@@ -79,7 +81,7 @@ export class SearchService {
     if (state.test('resource', entity.resource))
       return state.markComplete()
 
-    await this.childSearches(state, children)
+    await this.childSearches(state, children, false)
     return state.markComplete()
   }
 
@@ -87,9 +89,57 @@ export class SearchService {
     if (!(state.item instanceof Version))
       throw new Error('State should represent a Version')
     let version = state.item
+    let children: Promise<SearchState>[] = []
+    Object.values(version.systems).forEach(sys => children.push(this.searchSystem(state.new(sys))))
+    // if (version.schema)
+    //   children.push(this.searchSchema(state.new(version.schema)))
+
     if (state.test('version', version.name))
       return state.markComplete()
     if (Object.keys(version.systems).some(sys => state.test('system', sys)))
+      return state.markComplete()
+
+    await this.childSearches(state, children)
+    return state.markComplete()
+  }
+
+  async searchSystem(state: SearchState): Promise<SearchState> {
+    if (!(state.item instanceof System))
+      throw new Error('State should represent a System')
+    let system = state.item
+    let children: Promise<SearchState>[] = []
+    if (system.properties)
+      Object.values(system.properties).forEach(prop => this.searchSystemProperties(state.new(prop)))
+    // if (system.api)
+    //   children.push(this.searchApi(state.new(system.api)))
+
+    if (system.properties && Object.keys(system.properties).some(prop => state.test('property', prop)))
+      return state.markComplete()
+
+    await this.childSearches(state, children)
+    return state.markComplete()
+  }
+
+  async searchSystemProperties(state: SearchState): Promise<SearchState> {
+    let prop = state.item as Property
+
+    if (prop.from) {
+      if (state.test('object', prop.from.object))
+        return state.markComplete()
+      if (state.test('field', prop.from.field))
+        return state.markComplete()
+      if (state.test('notes', prop.from.notes))
+        return state.markComplete()
+    }
+
+    if (prop.ref) {
+      if (state.test('object', prop.ref.object))
+        return state.markComplete()
+      if (state.test('field', prop.ref.field))
+        return state.markComplete()
+    }
+
+    if (prop.UI && state.test('object', prop.UI))
       return state.markComplete()
 
     return state.markComplete()
@@ -137,7 +187,7 @@ class StateData {
       for (const item of this.items) {
         if (item instanceof StateData)
           item.test(id, value)
-       else
+        else
           item.found = item.found || !!value.toLowerCase().match(item.word.toLowerCase())
       }
   }
