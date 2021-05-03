@@ -109,7 +109,7 @@ export class SearchService {
     let system = state.item
     let children: Promise<SearchState>[] = []
     if (system.properties)
-      Object.values(system.properties).forEach(prop => this.searchSystemProperties(state.new(prop)))
+      Object.values(system.properties).forEach(prop => children.push(this.searchSystemProperties(state.new(prop))))
     // if (system.api)
     //   children.push(this.searchApi(state.new(system.api)))
 
@@ -139,7 +139,7 @@ export class SearchService {
         return state.markComplete()
     }
 
-    if (prop.UI && state.test('object', prop.UI))
+    if (prop.UI && state.test('ui', prop.UI))
       return state.markComplete()
 
     return state.markComplete()
